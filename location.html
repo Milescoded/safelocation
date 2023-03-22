@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Location Page</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAXX5DawIhBUTaMCMIhLzZk1UjMsd4KGn8"></script>
+    <script>
+        $(document).ready(function(){
+            var map, marker;
+
+            function initialize() {
+                // Create a map object
+                var mapOptions = {
+                    zoom: 8,
+                    center: new google.maps.LatLng(0, 0),
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                };
+                map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+                // Add a marker to the map
+                marker = new google.maps.Marker({
+                    position: map.getCenter(),
+                    map: map,
+                    draggable: true
+                });
+
+                // Update the latitude and longitude input fields when the marker is dragged
+                google.maps.event.addListener(marker, 'dragend', function(event) {
+                    $("#location_status").text("");
+                });
+
+                // Add a click event listener to the map
+                google.maps.event.addListener(map, 'click', function(event) {
+                    // Move the marker to the clicked location
+                    marker.setPosition(event.latLng);
+                    $("#location_status").text("");
+                });
+            }
+
+            // Initialize the map
+            initialize();
+
+            $("#check_location").click(function(){
+                // Get the latitude and longitude of the marker
+                var latitude = marker.getPosition().lat().toFixed(6);
+                var longitude = marker.getPosition().lng().toFixed(6);
+                $.ajax({
+                    url: "backend1.php",
+                    method: "POST",
+                    data: {latitude: latitude, longitude: longitude},
+                    success: function(response){
+                        $("#location_status").text(response);
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <h2>Location</h2>
+    <div id="map" style="width:500px;height:500px;"></div>
+    <form>
+        <button type="button" id="check_location">Check Location</button>
+    </form>
+    <p id="location_status"></p>
+</body>
+</html>
